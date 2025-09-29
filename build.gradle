@@ -7,8 +7,19 @@ plugins {
 group = 'com.project'
 version = '0.0.1-SNAPSHOT'
 
+// Usa toolchain para compilar con JDK 21 (Gradle la autodescarga)
 java {
-	sourceCompatibility = '21'
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+	// (Opcional) si quieres también fijar source/target explícitos:
+	// sourceCompatibility = JavaVersion.VERSION_21
+	// targetCompatibility = JavaVersion.VERSION_21
+}
+
+// (Opcional) fuerza --release 21 en javac si tu build lo requiere
+tasks.withType(JavaCompile).configureEach {
+	options.release = 21
 }
 
 repositories {
