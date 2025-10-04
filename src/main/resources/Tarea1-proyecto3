@@ -1,0 +1,288 @@
+type: collection.insomnia.rest/5.0
+name: Tarea1_Proyecto3_AlexanderLopez
+meta:
+  id: wrk_d76df185565d46ed83e5daa5b5110ac8
+  created: 1759117415212
+  modified: 1759117415212
+  description: ""
+collection:
+  - name: Auth
+    meta:
+      id: fld_89f6d647ff33498f88586e2c981f9992
+      created: 1759117415214
+      modified: 1759117415214
+      sortKey: -1759117415214
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/auth/login"
+        name: Login (POST /auth/login)
+        meta:
+          id: req_c340f7198c434692bbfb9737b9053351
+          created: 1759117415217
+          modified: 1759117415217
+          isPrivate: false
+          description: ""
+          sortKey: -1759117415217
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "email": "super.admin@gmail.com",
+              "password": "superadmin123"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Categories
+    meta:
+      id: fld_a98f45d9dbe74691aa2a55a4c479bceb
+      created: 1759117415215
+      modified: 1759117415215
+      sortKey: -1759117415215
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/categories?page=1&size=10"
+        name: List Categories
+        meta:
+          id: req_27976f49a88a4e7391caf2e265ed02a5
+          created: 1759117415218
+          modified: 1759117415218
+          isPrivate: false
+          description: ""
+          sortKey: -1759117415218
+        method: GET
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/categories"
+        name: Create Category
+        meta:
+          id: req_e9f90502286e4f11b9b1d708b3189cac
+          created: 1759117415218
+          modified: 1759117415218
+          isPrivate: false
+          description: ""
+          sortKey: -1759117415218
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nombre": "Electronics",
+              "descripcion": "Devices and gadgets"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/categories/1"
+        name: Update Category
+        meta:
+          id: req_383d131817b74dfd91a88bc61687ee42
+          created: 1759117415219
+          modified: 1759117415219
+          isPrivate: false
+          description: ""
+          sortKey: -1759117415219
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nombre": "Updated Electronics",
+              "descripcion": "New description"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/categories/1"
+        name: Delete Category
+        meta:
+          id: req_dcb173bac1fb4a90a26e546689902086
+          created: 1759117415220
+          modified: 1759117415220
+          isPrivate: false
+          description: ""
+          sortKey: -1759117415220
+        method: DELETE
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Products
+    meta:
+      id: fld_5f0a95a8d9aa44cf919d75e23df65b7a
+      created: 1759117415216
+      modified: 1759117415216
+      sortKey: -1759117415216
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/products/category/1"
+        name: Create Product in Category
+        meta:
+          id: req_40404375838a4430a4b8bdf2386123cc
+          created: 1759117415220
+          modified: 1759117415220
+          isPrivate: false
+          description: ""
+          sortKey: -1759117415220
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nombre": "Laptop",
+              "descripcion": "Gaming laptop",
+              "precio": 1200,
+              "stock": 10
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/products?page=1&size=10"
+        name: List Products
+        meta:
+          id: req_cdf65d60b775481c8552d812514105f6
+          created: 1759117415221
+          modified: 1759117485146
+          isPrivate: false
+          description: ""
+          sortKey: -1759117415221
+        method: GET
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/products/1"
+        name: Delete Product
+        meta:
+          id: req_1acbab2fbb1f47b2bde43fa781789282
+          created: 1759117415222
+          modified: 1759117415222
+          isPrivate: false
+          description: ""
+          sortKey: -1759117415222
+        method: DELETE
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/products/1"
+        name: Update Product
+        meta:
+          id: req_fd839c0b7d3748d58c9dffcb4db4f54e
+          created: 1759117415222
+          modified: 1759117415222
+          isPrivate: false
+          description: ""
+          sortKey: -1759117415222
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "nombre": "Laptop Gamer",
+              "descripcion": "Updated gaming laptop",
+              "precio": 1500,
+              "stock": 5
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_28e9dff1429a76427a2209458724c6bcf9c73474
+    created: 1759117415226
+    modified: 1759117415226
+environments:
+  name: Base Environment
+  meta:
+    id: env_efe237cf233c4745899303ca0111a425
+    created: 1759117415213
+    modified: 1759117489091
+    isPrivate: false
+  data:
+    base_url: http://localhost:8080
+    jwt_token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdXBlci5hZG1pbkBnbWFpbC5jb20iLCJpYXQiOjE3NTkxMTc0NjUsImV4cCI6MTc1OTEyMTA2NX0.S3CbS9U7VpFyo6SNzpYINjg34SU0MMw5mf32o9KgKsI
