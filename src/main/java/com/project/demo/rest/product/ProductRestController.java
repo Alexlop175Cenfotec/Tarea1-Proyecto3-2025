@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Optional;
 
 @RestController
@@ -24,109 +23,94 @@ public class ProductRestController {
 
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private CategoryRepository categoryRepository;
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> getAllProducts(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
-            HttpServletRequest request) {
-
+    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "1") int page,
+                                    @RequestParam(defaultValue = "10") int size,
+                                    HttpServletRequest request) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Product> productsPage = productRepository.findAll(pageable);
+        Page<Product> data = productRepository.findAll(pageable);
 
         Meta meta = new Meta(request.getMethod(), request.getRequestURL().toString());
-        meta.setTotalPages(productsPage.getTotalPages());
-        meta.setTotalElements(productsPage.getTotalElements());
-        meta.setPageNumber(productsPage.getNumber() + 1);
-        meta.setPageSize(productsPage.getSize());
+        meta.setTotalPages(data.getTotalPages());
+        meta.setTotalElements(data.getTotalElements());
+        meta.setPageNumber(data.getNumber() + 1);
+        meta.setPageSize(data.getSize());
 
-        return new GlobalResponseHandler().handleResponse(
-                "Products retrieved successfully",
-                productsPage.getContent(),
-                HttpStatus.OK,
-                meta
-        );
+        return new GlobalResponseHandler().handleResponse("Products retrieved", data.getContent(), HttpStatus.OK, meta);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getById(@PathVariable Long id, HttpServletRequest request) {
+        Optional<Product> found = productRepository.findById(id);
+        if (found.isPresent()) {
+            return new GlobalResponseHandler().handleResponse("Product retrieved", found.get(), HttpStatus.OK, request);
+        }
+        return new GlobalResponseHandler().handleResponse("Product not found", HttpStatus.NOT_FOUND, request);
+    }
+
+    @GetMapping("/category/{categoryId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getByCategory(@PathVariable Long categoryId,
+                                           @RequestParam(defaultValue = "1") int page,
+                                           @RequestParam(defaultValue = "10") int size,
+                                           HttpServletRequest request) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Product> data = productRepository.findByCategoryId(categoryId, pageable);
+
+        Meta meta = new Meta(request.getMethod(), request.getRequestURL().toString());
+        meta.setTotalPages(data.getTotalPages());
+        meta.setTotalElements(data.getTotalElements());
+        meta.setPageNumber(data.getNumber() + 1);
+        meta.setPageSize(data.getSize());
+
+        return new GlobalResponseHandler().handleResponse("Products by category retrieved", data.getContent(), HttpStatus.OK, meta);
     }
 
     @PostMapping("/category/{categoryId}")
     @PreAuthorize("hasRole('SUPER_ADMIN') and isAuthenticated()")
-    public ResponseEntity<?> addProductToCategory(@PathVariable Long categoryId,
-                                                  @RequestBody Product product,
-                                                  HttpServletRequest request) {
-        Optional<Category> foundCategory = categoryRepository.findById(categoryId);
-
-        if (foundCategory.isPresent()) {
-            product.setCategory(foundCategory.get());
-            Product savedProduct = productRepository.save(product);
-            return new GlobalResponseHandler().handleResponse(
-                    "Product created successfully",
-                    savedProduct,
-                    HttpStatus.CREATED,
-                    request
-            );
-        } else {
-            return new GlobalResponseHandler().handleResponse(
-                    "Category id " + categoryId + " not found",
-                    HttpStatus.NOT_FOUND,
-                    request
-            );
+    public ResponseEntity<?> add(@PathVariable Long categoryId,
+                                 @RequestBody Product product,
+                                 HttpServletRequest request) {
+        Optional<Category> category = categoryRepository.findById(categoryId);
+        if (category.isPresent()) {
+            product.setCategory(category.get());
+            Product saved = productRepository.save(product);
+            return new GlobalResponseHandler().handleResponse("Product created", saved, HttpStatus.CREATED, request);
         }
+        return new GlobalResponseHandler().handleResponse("Category not found", HttpStatus.NOT_FOUND, request);
     }
 
-    @PutMapping("/{productId}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN') and isAuthenticated()")
-    public ResponseEntity<?> updateProduct(@PathVariable Long productId,
-                                           @RequestBody Product product,
-                                           HttpServletRequest request) {
-        Optional<Product> foundProduct = productRepository.findById(productId);
-
-        if (foundProduct.isPresent()) {
-            product.setId(foundProduct.get().getId());
-            product.setCategory(foundProduct.get().getCategory());
-            productRepository.save(product);
-            return new GlobalResponseHandler().handleResponse(
-                    "Product updated successfully",
-                    product,
-                    HttpStatus.OK,
-                    request
-            );
-        } else {
-            return new GlobalResponseHandler().handleResponse(
-                    "Product id " + productId + " not found",
-                    HttpStatus.NOT_FOUND,
-                    request
-            );
+    public ResponseEntity<?> update(@PathVariable Long id,
+                                    @RequestBody Product product,
+                                    HttpServletRequest request) {
+        Optional<Product> found = productRepository.findById(id);
+        if (found.isPresent()) {
+            Product p = found.get();
+            p.setNombre(product.getNombre());
+            p.setDescripcion(product.getDescripcion());
+            p.setPrecio(product.getPrecio());
+            p.setStock(product.getStock());
+            Product saved = productRepository.save(p);
+            return new GlobalResponseHandler().handleResponse("Product updated", saved, HttpStatus.OK, request);
         }
+        return new GlobalResponseHandler().handleResponse("Product not found", HttpStatus.NOT_FOUND, request);
     }
 
-    @DeleteMapping("/{productId}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN') and isAuthenticated()")
-    public ResponseEntity<?> deleteProduct(@PathVariable Long productId,
-                                           HttpServletRequest request) {
-        Optional<Product> foundProduct = productRepository.findById(productId);
-
-        if (foundProduct.isPresent()) {
-            Optional<Category> category = categoryRepository.findById(foundProduct.get().getCategory().getId());
-            category.ifPresent(c -> c.getProducts().remove(foundProduct.get()));
-
-            productRepository.deleteById(foundProduct.get().getId());
-
-            return new GlobalResponseHandler().handleResponse(
-                    "Product deleted successfully",
-                    foundProduct.get(),
-                    HttpStatus.OK,
-                    request
-            );
-        } else {
-            return new GlobalResponseHandler().handleResponse(
-                    "Product id " + productId + " not found",
-                    HttpStatus.NOT_FOUND,
-                    request
-            );
+    public ResponseEntity<?> delete(@PathVariable Long id, HttpServletRequest request) {
+        Optional<Product> found = productRepository.findById(id);
+        if (found.isPresent()) {
+            productRepository.delete(found.get());
+            return new GlobalResponseHandler().handleResponse("Product deleted", found.get(), HttpStatus.OK, request);
         }
+        return new GlobalResponseHandler().handleResponse("Product not found", HttpStatus.NOT_FOUND, request);
     }
 }
